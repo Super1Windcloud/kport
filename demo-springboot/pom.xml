@@ -23,7 +23,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.superwindcloud</groupId>
+            <groupId>io.github.super1windcloud</groupId>
             <artifactId>killport</artifactId>
             <version>1.0.0</version>
         </dependency>

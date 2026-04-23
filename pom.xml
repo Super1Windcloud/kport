@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.superwindcloud</groupId>
+    <groupId>io.github.super1windcloud</groupId>
     <artifactId>killport</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
@@ -25,6 +25,7 @@
         <maven.javadoc.plugin.version>3.12.0</maven.javadoc.plugin.version>
         <maven.gpg.plugin.version>3.2.8</maven.gpg.plugin.version>
         <central.publishing.plugin.version>0.9.0</central.publishing.plugin.version>
+        <gpg.keyname>D5C6C5E430FC6367CEE2CA4AF842617CFEB3D686</gpg.keyname>
     </properties>
 
     <licenses>
@@ -147,6 +148,7 @@
                         </goals>
                         <configuration>
                             <bestPractices>true</bestPractices>
+                            <keyname>${gpg.keyname}</keyname>
                         </configuration>
                     </execution>
                 </executions>
