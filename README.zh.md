@@ -142,6 +142,127 @@ Fkill.kill(List.of(":8080", "node"), Fkill.Options.builder().ignoreCase(true).bu
 
 完整可运行示例见 `examples/LibraryUsageExample.java`。
 
+### Spring Boot 集成示例
+
+如果你想把它作为后端 API 暴露给前端或内部系统，建议自己封装一层 `service`，不要在 controller 里直接调用底层库。
+
+```java
+package com.example.demo.service;
+
+import java.time.Duration;
+import java.util.List;
+import org.springframework.stereotype.Service;
+import org.superwindcloud.fkill.Fkill;
+import org.superwindcloud.fkill.FkillException;
+
+@Service
+public class ProcessKillService {
+
+    public void killByPort(int port) throws FkillException {
+        Fkill.kill(":" + port);
+    }
+
+    public void killTargets(List<String> targets) throws FkillException {
+        Fkill.Options options = Fkill.Options.builder()
+                .ignoreCase(true)
+                .tree(true)
+                .silent(false)
+                .forceAfterTimeout(Duration.ofMillis(1000))
+                .waitForExit(Duration.ofMillis(3000))
+                .build();
+
+        Fkill.kill(targets, options);
+    }
+}
+```
+
+对应的请求对象：
+
+```java
+package com.example.demo.web;
+
+import java.util.List;
+
+public record KillRequest(
+        List<String> targets,
+        Boolean ignoreCase,
+        Boolean tree,
+        Boolean silent,
+        Long forceAfterTimeoutMs,
+        Long waitForExitMs) {}
+```
+
+对应的 controller：
+
+```java
+package com.example.demo.web;
+
+import java.time.Duration;
+import java.util.List;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.superwindcloud.fkill.Fkill;
+import org.superwindcloud.fkill.FkillException;
+
+@RestController
+@RequestMapping("/api/processes")
+public class ProcessKillController {
+    @PostMapping("/kill")
+    public ResponseEntity<?> kill(@RequestBody KillRequest request) {
+        try {
+            Fkill.Options options = Fkill.Options.builder()
+                    .ignoreCase(Boolean.TRUE.equals(request.ignoreCase()))
+                    .tree(request.tree() == null || request.tree())
+                    .silent(Boolean.TRUE.equals(request.silent()))
+                    .forceAfterTimeout(
+                            request.forceAfterTimeoutMs() == null
+                                    ? null
+                                    : Duration.ofMillis(request.forceAfterTimeoutMs()))
+                    .waitForExit(
+                            request.waitForExitMs() == null
+                                    ? null
+                                    : Duration.ofMillis(request.waitForExitMs()))
+                    .build();
+
+            List<String> targets = request.targets() == null ? List.of() : request.targets();
+            Fkill.kill(targets, options);
+
+            return ResponseEntity.ok().body("Processes terminated.");
+        } catch (FkillException exception) {
+            return ResponseEntity.badRequest().body(exception.errors().isEmpty()
+                    ? exception.getMessage()
+                    : exception.errors());
+        }
+    }
+}
+```
+
+请求示例：
+
+```http
+POST /api/processes/kill
+Content-Type: application/json
+
+{
+  "targets": [":8080", "java", "12345"],
+  "ignoreCase": true,
+  "tree": true,
+  "silent": false,
+  "forceAfterTimeoutMs": 1000,
+  "waitForExitMs": 3000
+}
+```
+
+说明：
+
+- `targets` 同时支持端口、进程名、PID
+- `tree` 不传时，建议默认 `true`
+- 不要把这个接口直接暴露到公网，风险很高
+- 更稳妥的做法是加鉴权、白名单和审计日志
+
 ## 公开 API
 
 主要入口：

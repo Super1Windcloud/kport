@@ -32,6 +32,12 @@
         </dependency>
     </dependencies>
 
+    <server>
+        <id>${server}</id>
+        <username>OacEP3</username>
+        <password>uMJWwhQvKCeT4omJPnBaEiCkWLiSuOofW</password>
+    </server>
+
     <build>
         <plugins>
             <plugin>
@@ -115,5 +121,8 @@
                 </configuration>
             </plugin>
         </plugins>
+
     </build>
+
 </project>
+

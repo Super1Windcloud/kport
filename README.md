@@ -142,6 +142,127 @@ Fkill.kill(List.of(":8080", "node"), Fkill.Options.builder().ignoreCase(true).bu
 
 See `examples/LibraryUsageExample.java` for a runnable example.
 
+### Spring Boot Integration Example
+
+If you want to expose this as a backend API, wrap the library in your own service instead of calling it directly from a controller everywhere.
+
+```java
+package com.example.demo.service;
+
+import java.time.Duration;
+import java.util.List;
+import org.springframework.stereotype.Service;
+import org.superwindcloud.fkill.Fkill;
+import org.superwindcloud.fkill.FkillException;
+
+@Service
+public class ProcessKillService {
+
+    public void killByPort(int port) throws FkillException {
+        Fkill.kill(":" + port);
+    }
+
+    public void killTargets(List<String> targets) throws FkillException {
+        Fkill.Options options = Fkill.Options.builder()
+                .ignoreCase(true)
+                .tree(true)
+                .silent(false)
+                .forceAfterTimeout(Duration.ofMillis(1000))
+                .waitForExit(Duration.ofMillis(3000))
+                .build();
+
+        Fkill.kill(targets, options);
+    }
+}
+```
+
+Request DTO:
+
+```java
+package com.example.demo.web;
+
+import java.util.List;
+
+public record KillRequest(
+        List<String> targets,
+        Boolean ignoreCase,
+        Boolean tree,
+        Boolean silent,
+        Long forceAfterTimeoutMs,
+        Long waitForExitMs) {}
+```
+
+Controller example:
+
+```java
+package com.example.demo.web;
+
+import java.time.Duration;
+import java.util.List;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.superwindcloud.fkill.Fkill;
+import org.superwindcloud.fkill.FkillException;
+
+@RestController
+@RequestMapping("/api/processes")
+public class ProcessKillController {
+    @PostMapping("/kill")
+    public ResponseEntity<?> kill(@RequestBody KillRequest request) {
+        try {
+            Fkill.Options options = Fkill.Options.builder()
+                    .ignoreCase(Boolean.TRUE.equals(request.ignoreCase()))
+                    .tree(request.tree() == null || request.tree())
+                    .silent(Boolean.TRUE.equals(request.silent()))
+                    .forceAfterTimeout(
+                            request.forceAfterTimeoutMs() == null
+                                    ? null
+                                    : Duration.ofMillis(request.forceAfterTimeoutMs()))
+                    .waitForExit(
+                            request.waitForExitMs() == null
+                                    ? null
+                                    : Duration.ofMillis(request.waitForExitMs()))
+                    .build();
+
+            List<String> targets = request.targets() == null ? List.of() : request.targets();
+            Fkill.kill(targets, options);
+
+            return ResponseEntity.ok().body("Processes terminated.");
+        } catch (FkillException exception) {
+            return ResponseEntity.badRequest().body(exception.errors().isEmpty()
+                    ? exception.getMessage()
+                    : exception.errors());
+        }
+    }
+}
+```
+
+Example request:
+
+```http
+POST /api/processes/kill
+Content-Type: application/json
+
+{
+  "targets": [":8080", "java", "12345"],
+  "ignoreCase": true,
+  "tree": true,
+  "silent": false,
+  "forceAfterTimeoutMs": 1000,
+  "waitForExitMs": 3000
+}
+```
+
+Notes:
+
+- `targets` supports port, process name, and PID in one request
+- if `tree` is omitted, defaulting to `true` is usually the safer behavior
+- do not expose this endpoint publicly without strict authentication/authorization
+- in production, add allowlists and audit logging
+
 ## Public API
 
 Main entry points:
