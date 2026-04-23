@@ -91,7 +91,7 @@ java -jar target/killport-1.0-SNAPSHOT.jar --force-after-timeout 1000 --wait-for
 mvn install
 ```
 
-### API 示例
+### API 完整用例
 
 ```java
 import java.time.Duration;
@@ -101,19 +101,46 @@ import org.superwindcloud.fkill.FkillException;
 
 public class Demo {
     public static void main(String[] args) throws FkillException {
+        // 1. 最简单：直接按端口终止
+        Fkill.kill(":8080");
+
+        // 2. 复杂场景：一次处理多个目标
         Fkill.Options options = Fkill.Options.builder()
             .ignoreCase(true)
             .tree(true)
+            .silent(false)
             .forceAfterTimeout(Duration.ofMillis(1000))
             .waitForExit(Duration.ofMillis(3000))
             .build();
 
-        Fkill.kill(List.of(":8080", "java"), options);
+        try {
+            Fkill.kill(List.of(":8081", "java", "12345"), options);
+            System.out.println("All matching processes terminated.");
+        } catch (FkillException exception) {
+            System.err.println(exception.getMessage());
+            for (String error : exception.errors()) {
+                System.err.println(" - " + error);
+            }
+        }
     }
 }
 ```
 
-完整示例见 `examples/LibraryUsageExample.java`。
+这个示例覆盖了三种输入：
+
+- `:8081`：按端口查找并终止占用端口的进程
+- `java`：按进程名终止
+- `12345`：按 PID 终止
+
+常见集成方式：
+
+```java
+Fkill.kill(":3000");
+Fkill.kill("4321");
+Fkill.kill(List.of(":8080", "node"), Fkill.Options.builder().ignoreCase(true).build());
+```
+
+完整可运行示例见 `examples/LibraryUsageExample.java`。
 
 ## 公开 API
 
@@ -134,6 +161,15 @@ public class Demo {
 - `silent`
 - `forceAfterTimeout`
 - `waitForExit`
+
+含义说明：
+
+- `force`: 直接强制终止
+- `tree`: 是否连同子进程一起终止，默认 `true`
+- `ignoreCase`: 名称匹配时忽略大小写
+- `silent`: 单个目标失败时是否忽略异常
+- `forceAfterTimeout`: 先正常结束，超时后升级为强制终止
+- `waitForExit`: 等待进程真正退出的最大时长
 
 ## 实现说明
 

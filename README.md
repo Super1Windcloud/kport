@@ -91,7 +91,7 @@ For local development, install it into your local Maven repository first:
 mvn install
 ```
 
-### API Example
+### Complete API Example
 
 ```java
 import java.time.Duration;
@@ -101,19 +101,46 @@ import org.superwindcloud.fkill.FkillException;
 
 public class Demo {
     public static void main(String[] args) throws FkillException {
+        // 1. Simplest case: kill the process listening on a port.
+        Fkill.kill(":8080");
+
+        // 2. Advanced case: resolve and kill multiple targets in one call.
         Fkill.Options options = Fkill.Options.builder()
             .ignoreCase(true)
             .tree(true)
+            .silent(false)
             .forceAfterTimeout(Duration.ofMillis(1000))
             .waitForExit(Duration.ofMillis(3000))
             .build();
 
-        Fkill.kill(List.of(":8080", "java"), options);
+        try {
+            Fkill.kill(List.of(":8081", "java", "12345"), options);
+            System.out.println("All matching processes terminated.");
+        } catch (FkillException exception) {
+            System.err.println(exception.getMessage());
+            for (String error : exception.errors()) {
+                System.err.println(" - " + error);
+            }
+        }
     }
 }
 ```
 
-See `examples/LibraryUsageExample.java` for a complete example.
+This example covers three target types:
+
+- `:8081`: kill by port
+- `java`: kill by process name
+- `12345`: kill by PID
+
+Common integration patterns:
+
+```java
+Fkill.kill(":3000");
+Fkill.kill("4321");
+Fkill.kill(List.of(":8080", "node"), Fkill.Options.builder().ignoreCase(true).build());
+```
+
+See `examples/LibraryUsageExample.java` for a runnable example.
 
 ## Public API
 
@@ -134,6 +161,15 @@ Configurable options:
 - `silent`
 - `forceAfterTimeout`
 - `waitForExit`
+
+Option meanings:
+
+- `force`: terminate forcefully from the start
+- `tree`: terminate child processes as well, default is `true`
+- `ignoreCase`: ignore case when matching process names
+- `silent`: suppress per-target failures
+- `forceAfterTimeout`: retry with force after graceful termination times out
+- `waitForExit`: maximum time to wait for actual process exit
 
 ## Implementation Notes
 
