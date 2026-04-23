@@ -1,0 +1,12 @@
+server:
+  port: 18080
+
+process-kill:
+  api-token: change-me
+  allow-pid: false
+  allowed-ports:
+    - 8080
+    - 8081
+  allowed-process-names:
+    - java
+    - node

@@ -142,6 +142,8 @@ Fkill.kill(List.of(":8080", "node"), Fkill.Options.builder().ignoreCase(true).bu
 
 See `examples/LibraryUsageExample.java` for a runnable example.
 
+If you want a complete backend sample project, see `demo-springboot/`.
+
 ### Spring Boot Integration Example
 
 If you want to expose this as a backend API, wrap the library in your own service instead of calling it directly from a controller everywhere.

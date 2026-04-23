@@ -142,6 +142,8 @@ Fkill.kill(List.of(":8080", "node"), Fkill.Options.builder().ignoreCase(true).bu
 
 完整可运行示例见 `examples/LibraryUsageExample.java`。
 
+如果你需要一个可直接参考的后端项目骨架，见 `demo-springboot/`。
+
 ### Spring Boot 集成示例
 
 如果你想把它作为后端 API 暴露给前端或内部系统，建议自己封装一层 `service`，不要在 controller 里直接调用底层库。
