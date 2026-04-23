@@ -13,10 +13,10 @@ This demo depends on the main `killport` library:
 
 ```bash
 cd ..
-mvn install
+mvn -pl . clean install
 ```
 
-Make sure the root project is built and installed locally before running this demo.
+If you only want to consume the published artifact, use `io.github.super1windcloud:killport:1.0.0` from Maven Central instead.
 
 ## Run
 

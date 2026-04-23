@@ -75,17 +75,23 @@ java -jar target/killport-1.0.0.jar --force-after-timeout 1000 --wait-for-exit 3
 
 ### Maven 依赖
 
-如果你把它发布到私有仓库或本地仓库，可以这样引入：
+已发布到 Maven Central：
+
+- Group ID: `io.github.super1windcloud`
+- Artifact ID: `killport`
+- Version: `1.0.0`
+
+可以直接这样引入：
 
 ```xml
 <dependency>
-    <groupId>org.superwindcloud</groupId>
+    <groupId>io.github.super1windcloud</groupId>
     <artifactId>killport</artifactId>
     <version>1.0.0</version>
 </dependency>
 ```
 
-如果只是本地开发测试，可以先安装到本地仓库：
+如果你是在当前源码基础上做本地联调，也可以先安装到本地仓库：
 
 ```bash
 mvn install

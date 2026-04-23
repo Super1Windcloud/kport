@@ -75,17 +75,23 @@ This project is a standard Maven `jar`, so it can be used directly as a dependen
 
 ### Maven Dependency
 
-If you publish it to a private repository or install it locally, you can depend on it like this:
+Published on Maven Central:
+
+- Group ID: `io.github.super1windcloud`
+- Artifact ID: `killport`
+- Version: `1.0.0`
+
+Add it directly from Maven Central:
 
 ```xml
 <dependency>
-    <groupId>org.superwindcloud</groupId>
+    <groupId>io.github.super1windcloud</groupId>
     <artifactId>killport</artifactId>
     <version>1.0.0</version>
 </dependency>
 ```
 
-For local development, install it into your local Maven repository first:
+For local development against the current source tree, you can still install it into your local Maven repository:
 
 ```bash
 mvn install
