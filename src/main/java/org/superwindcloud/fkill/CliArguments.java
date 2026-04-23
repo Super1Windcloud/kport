@@ -4,73 +4,97 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-public record CliArguments(List<String> inputs, Fkill.Options options, boolean help) {
-    public static CliArguments parse(String[] args) {
-        List<String> inputs = new ArrayList<>();
-        Fkill.Options.Builder builder = Fkill.Options.builder();
-        boolean help = false;
+public final class CliArguments {
+  private final List<String> inputs;
+  private final Fkill.Options options;
+  private final boolean help;
 
-        for (int index = 0; index < args.length; index++) {
-            String argument = args[index];
-            if (!argument.startsWith("-") || "-".equals(argument)) {
-                inputs.add(argument);
-                continue;
-            }
+  public CliArguments(List<String> inputs, Fkill.Options options, boolean help) {
+    this.inputs = List.copyOf(inputs);
+    this.options = options;
+    this.help = help;
+  }
 
-            switch (argument) {
-                case "-h", "--help" -> help = true;
-                case "-f", "--force" -> builder.force(true);
-                case "-i", "--ignore-case" -> builder.ignoreCase(true);
-                case "-s", "--silent" -> builder.silent(true);
-                case "-t", "--tree" -> builder.tree(true);
-                case "--no-tree" -> builder.tree(false);
-                default -> {
-                    if (argument.startsWith("--force-after-timeout=")) {
-                        builder.forceAfterTimeout(parseDuration(argument.substring(argument.indexOf('=') + 1),
-                            "force-after-timeout"));
-                    } else if (argument.equals("--force-after-timeout")) {
-                        index = requireValue(args, index, argument);
-                        builder.forceAfterTimeout(parseDuration(args[index], "force-after-timeout"));
-                    } else if (argument.startsWith("--wait-for-exit=")) {
-                        builder.waitForExit(parseDuration(argument.substring(argument.indexOf('=') + 1),
-                            "wait-for-exit"));
-                    } else if (argument.equals("--wait-for-exit")) {
-                        index = requireValue(args, index, argument);
-                        builder.waitForExit(parseDuration(args[index], "wait-for-exit"));
-                    } else {
-                        throw new IllegalArgumentException("Unknown option: " + argument);
-                    }
-                }
-            }
+  public List<String> inputs() {
+    return inputs;
+  }
+
+  public Fkill.Options options() {
+    return options;
+  }
+
+  public boolean help() {
+    return help;
+  }
+
+  public static CliArguments parse(String[] args) {
+    List<String> inputs = new ArrayList<>();
+    Fkill.Options.Builder builder = Fkill.Options.builder();
+    boolean help = false;
+
+    for (int index = 0; index < args.length; index++) {
+      String argument = args[index];
+      if (!argument.startsWith("-") || "-".equals(argument)) {
+        inputs.add(argument);
+        continue;
+      }
+
+      switch (argument) {
+        case "-h", "--help" -> help = true;
+        case "-f", "--force" -> builder.force(true);
+        case "-i", "--ignore-case" -> builder.ignoreCase(true);
+        case "-s", "--silent" -> builder.silent(true);
+        case "-t", "--tree" -> builder.tree(true);
+        case "--no-tree" -> builder.tree(false);
+        default -> {
+          if (argument.startsWith("--force-after-timeout=")) {
+            builder.forceAfterTimeout(
+                parseDuration(
+                    argument.substring(argument.indexOf('=') + 1), "force-after-timeout"));
+          } else if (argument.equals("--force-after-timeout")) {
+            index = requireValue(args, index, argument);
+            builder.forceAfterTimeout(parseDuration(args[index], "force-after-timeout"));
+          } else if (argument.startsWith("--wait-for-exit=")) {
+            builder.waitForExit(
+                parseDuration(argument.substring(argument.indexOf('=') + 1), "wait-for-exit"));
+          } else if (argument.equals("--wait-for-exit")) {
+            index = requireValue(args, index, argument);
+            builder.waitForExit(parseDuration(args[index], "wait-for-exit"));
+          } else {
+            throw new IllegalArgumentException("Unknown option: " + argument);
+          }
         }
-
-        return new CliArguments(List.copyOf(inputs), builder.build(), help);
+      }
     }
 
-    private static int requireValue(String[] args, int index, String option) {
-        int nextIndex = index + 1;
-        if (nextIndex >= args.length) {
-            throw new IllegalArgumentException("Missing value for option: " + option);
-        }
+    return new CliArguments(inputs, builder.build(), help);
+  }
 
-        return nextIndex;
+  private static int requireValue(String[] args, int index, String option) {
+    int nextIndex = index + 1;
+    if (nextIndex >= args.length) {
+      throw new IllegalArgumentException("Missing value for option: " + option);
     }
 
-    private static Duration parseDuration(String raw, String optionName) {
-        try {
-            long milliseconds = Long.parseLong(raw);
-            if (milliseconds < 0) {
-                throw new IllegalArgumentException("Option --" + optionName + " must be >= 0");
-            }
+    return nextIndex;
+  }
 
-            return Duration.ofMillis(milliseconds);
-        } catch (NumberFormatException exception) {
-            throw new IllegalArgumentException("Option --" + optionName + " expects milliseconds: " + raw, exception);
-        }
+  private static Duration parseDuration(String raw, String optionName) {
+    try {
+      long milliseconds = Long.parseLong(raw);
+      if (milliseconds < 0) {
+        throw new IllegalArgumentException("Option --" + optionName + " must be >= 0");
+      }
+
+      return Duration.ofMillis(milliseconds);
+    } catch (NumberFormatException exception) {
+      throw new IllegalArgumentException(
+          "Option --" + optionName + " expects milliseconds: " + raw, exception);
     }
+  }
 
-    public static String usage() {
-        return """
+  public static String usage() {
+    return """
             Usage: java -jar killport-1.0-SNAPSHOT.jar [options] <pid|name|:port>...
 
             Options:
@@ -88,5 +112,5 @@ public record CliArguments(List<String> inputs, Fkill.Options options, boolean h
               java        Kill processes by executable name
               :8080       Kill process bound to port 8080
             """;
-    }
+  }
 }

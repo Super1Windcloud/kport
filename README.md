@@ -1,79 +1,81 @@
 # killport
 
-一个参考 [`sindresorhus/fkill`](https://github.com/sindresorhus/fkill) 思路实现的 Java 版进程终止工具，既可以作为命令行使用，也可以作为库集成到 Java 项目里。
+[中文](README.zh.md)
 
-支持：
+A Java implementation inspired by [`sindresorhus/fkill`](https://github.com/sindresorhus/fkill). It can be used both as a command-line tool and as a reusable library in Java projects.
 
-- 按 `PID` 终止进程
-- 按进程名终止进程
-- 按 `:端口` 查找并终止占用端口的进程
-- 递归终止子进程树
-- 超时后强制终止
-- 等待进程退出
-- 失败静默处理
+Features:
 
-## 构建
+- Kill a process by `PID`
+- Kill processes by name
+- Kill the process listening on `:port`
+- Kill the whole child process tree
+- Force kill after a timeout
+- Wait for process exit
+- Ignore per-target failures
+
+## Build
 
 ```bash
 mvn package
 ```
 
-构建完成后产物位于：
+The built artifact is generated at:
 
 ```text
 target/killport-1.0-SNAPSHOT.jar
 ```
 
-## 命令行用法
+## CLI Usage
 
-查看帮助：
+Show help:
 
 ```bash
 java -jar target/killport-1.0-SNAPSHOT.jar --help
 ```
 
-按 PID 杀进程：
+Kill by PID:
 
 ```bash
 java -jar target/killport-1.0-SNAPSHOT.jar 1234
 ```
 
-按端口杀进程：
+Kill by port:
 
 ```bash
 java -jar target/killport-1.0-SNAPSHOT.jar :8080
 ```
 
-按名称杀进程并忽略大小写：
+Kill by process name and ignore case:
 
 ```bash
 java -jar target/killport-1.0-SNAPSHOT.jar --ignore-case java
 ```
 
-超时后强杀并等待退出：
+Force kill after a timeout and wait for exit:
 
 ```bash
 java -jar target/killport-1.0-SNAPSHOT.jar --force-after-timeout 1000 --wait-for-exit 3000 java
 ```
 
-可用参数：
+Available options:
 
-- `-f, --force`: 直接强制终止
-- `-i, --ignore-case`: 名称匹配忽略大小写
-- `-s, --silent`: 忽略单个目标失败
-- `-t, --tree`: 同时终止子进程
-- `--no-tree`: 仅终止命中的进程
-- `--force-after-timeout <ms>`: 先正常结束，超时后强制结束
-- `--wait-for-exit <ms>`: 等待进程退出
-- `-h, --help`: 输出帮助
+- `-f, --force`: forcefully terminate the process
+- `-i, --ignore-case`: ignore case when matching process names
+- `-s, --silent`: ignore per-target failures
+- `-t, --tree`: terminate child processes too
+- `--no-tree`: terminate only the matched process
+- `--force-after-timeout <ms>`: retry with force after the timeout
+- `--wait-for-exit <ms>`: wait until the process exits
+- `-h, --help`: show help
 
-## 作为库使用
+## Using As A Library
 
-当前项目本身就是一个标准 Maven `jar`，可以直接作为依赖使用。
+This project is a standard Maven `jar`, so it can be used directly as a dependency.
 
-### Maven 依赖
+### Maven Dependency
 
-如果你把它发布到私有仓库或本地仓库，可以这样引入：
+If you publish it to a private repository or install it locally, you can depend on it like this:
 
 ```xml
 <dependency>
@@ -83,13 +85,13 @@ java -jar target/killport-1.0-SNAPSHOT.jar --force-after-timeout 1000 --wait-for
 </dependency>
 ```
 
-如果只是本地开发测试，可以先安装到本地仓库：
+For local development, install it into your local Maven repository first:
 
 ```bash
 mvn install
 ```
 
-### API 示例
+### API Example
 
 ```java
 import java.time.Duration;
@@ -111,20 +113,20 @@ public class Demo {
 }
 ```
 
-完整示例见 `examples/LibraryUsageExample.java`。
+See `examples/LibraryUsageExample.java` for a complete example.
 
-## 公开 API
+## Public API
 
-主要入口：
+Main entry points:
 
 - `Fkill.kill(String input)`
 - `Fkill.kill(Collection<String> inputs, Fkill.Options options)`
 
-异常类型：
+Exception type:
 
 - `FkillException`
 
-可配置项：
+Configurable options:
 
 - `force`
 - `tree`
@@ -133,15 +135,15 @@ public class Demo {
 - `forceAfterTimeout`
 - `waitForExit`
 
-## 实现说明
+## Implementation Notes
 
-- Windows 下按端口查进程使用 `netstat -ano`
-- Linux / macOS 下优先尝试 `lsof`，回退到 `ss`
-- 名称匹配基于 `ProcessHandle.info().command()`
-- 为避免自杀，会跳过当前 Java 进程及其父进程链
+- On Windows, port-to-process resolution uses `netstat -ano`
+- On Linux and macOS, it tries `lsof` first and falls back to `ss`
+- Process name matching is based on `ProcessHandle.info().command()`
+- To avoid killing itself, the current Java process and its parent chain are skipped
 
-## 已知限制
+## Known Limitations
 
-- 进程名匹配依赖 JVM 能否读取到目标进程的命令路径，受操作系统和权限影响
-- Unix 系统上如果同时没有 `lsof` 和 `ss`，则无法通过端口解析 PID
-- 这个实现尽量贴近 `fkill` 的核心行为，但没有完全复制 Node.js 版本的全部边界处理
+- Process name matching depends on whether the JVM can read the target process command path, which may vary by OS and permissions
+- On Unix-like systems, port resolution will not work if neither `lsof` nor `ss` is available
+- This implementation follows the core behavior of `fkill`, but does not reproduce every edge case from the Node.js version
