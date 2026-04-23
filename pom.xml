@@ -26,8 +26,13 @@
         <central.publishing.plugin.version>0.9.0</central.publishing.plugin.version>
     </properties>
 
-    <!-- TODO: Central requires a real license declaration before publish. -->
-    <!-- Example: MIT License / https://www.opensource.org/licenses/mit-license.php -->
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/license/mit</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
     <developers>
         <developer>
