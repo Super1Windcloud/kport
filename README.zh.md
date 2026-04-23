@@ -23,7 +23,7 @@ mvn package
 构建完成后产物位于：
 
 ```text
-target/killport-1.0-SNAPSHOT.jar
+target/killport-1.0.0.jar
 ```
 
 ## 命令行用法
@@ -31,31 +31,31 @@ target/killport-1.0-SNAPSHOT.jar
 查看帮助：
 
 ```bash
-java -jar target/killport-1.0-SNAPSHOT.jar --help
+java -jar target/killport-1.0.0.jar --help
 ```
 
 按 PID 杀进程：
 
 ```bash
-java -jar target/killport-1.0-SNAPSHOT.jar 1234
+java -jar target/killport-1.0.0.jar 1234
 ```
 
 按端口杀进程：
 
 ```bash
-java -jar target/killport-1.0-SNAPSHOT.jar :8080
+java -jar target/killport-1.0.0.jar :8080
 ```
 
 按名称杀进程并忽略大小写：
 
 ```bash
-java -jar target/killport-1.0-SNAPSHOT.jar --ignore-case java
+java -jar target/killport-1.0.0.jar --ignore-case java
 ```
 
 超时后强杀并等待退出：
 
 ```bash
-java -jar target/killport-1.0-SNAPSHOT.jar --force-after-timeout 1000 --wait-for-exit 3000 java
+java -jar target/killport-1.0.0.jar --force-after-timeout 1000 --wait-for-exit 3000 java
 ```
 
 可用参数：
@@ -81,7 +81,7 @@ java -jar target/killport-1.0-SNAPSHOT.jar --force-after-timeout 1000 --wait-for
 <dependency>
     <groupId>org.superwindcloud</groupId>
     <artifactId>killport</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 

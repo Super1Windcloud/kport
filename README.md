@@ -23,7 +23,7 @@ mvn package
 The built artifact is generated at:
 
 ```text
-target/killport-1.0-SNAPSHOT.jar
+target/killport-1.0.0.jar
 ```
 
 ## CLI Usage
@@ -31,31 +31,31 @@ target/killport-1.0-SNAPSHOT.jar
 Show help:
 
 ```bash
-java -jar target/killport-1.0-SNAPSHOT.jar --help
+java -jar target/killport-1.0.0.jar --help
 ```
 
 Kill by PID:
 
 ```bash
-java -jar target/killport-1.0-SNAPSHOT.jar 1234
+java -jar target/killport-1.0.0.jar 1234
 ```
 
 Kill by port:
 
 ```bash
-java -jar target/killport-1.0-SNAPSHOT.jar :8080
+java -jar target/killport-1.0.0.jar :8080
 ```
 
 Kill by process name and ignore case:
 
 ```bash
-java -jar target/killport-1.0-SNAPSHOT.jar --ignore-case java
+java -jar target/killport-1.0.0.jar --ignore-case java
 ```
 
 Force kill after a timeout and wait for exit:
 
 ```bash
-java -jar target/killport-1.0-SNAPSHOT.jar --force-after-timeout 1000 --wait-for-exit 3000 java
+java -jar target/killport-1.0.0.jar --force-after-timeout 1000 --wait-for-exit 3000 java
 ```
 
 Available options:
@@ -81,7 +81,7 @@ If you publish it to a private repository or install it locally, you can depend 
 <dependency>
     <groupId>org.superwindcloud</groupId>
     <artifactId>killport</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 

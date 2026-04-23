@@ -16,7 +16,7 @@ cd ..
 mvn install
 ```
 
-At the moment the root project contains an invalid `<server>` node in [../pom.xml](../pom.xml), so you need to remove or fix that before running `mvn install`.
+Make sure the root project is built and installed locally before running this demo.
 
 ## Run
 

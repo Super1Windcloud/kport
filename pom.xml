@@ -6,7 +6,12 @@
 
     <groupId>org.superwindcloud</groupId>
     <artifactId>killport</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+
+    <name>killport</name>
+    <description>A Java implementation inspired by fkill for terminating processes by PID, name, or port.</description>
+    <url>https://github.com/Super1Windcloud/kport</url>
 
     <properties>
         <maven.compiler.source>20</maven.compiler.source>
@@ -15,10 +20,30 @@
         <junit.version>5.12.2</junit.version>
         <spotless.version>2.43.0</spotless.version>
         <spotbugs.maven.plugin.version>4.8.6.6</spotbugs.maven.plugin.version>
-        <maven.release.repository.id>github</maven.release.repository.id>
-        <maven.release.repository.url>https://maven.pkg.github.com/Super1Windcloud/kport</maven.release.repository.url>
-        <maven.snapshot.repository.url>https://maven.pkg.github.com/Super1Windcloud/kport</maven.snapshot.repository.url>
+        <maven.source.plugin.version>3.4.0</maven.source.plugin.version>
+        <maven.javadoc.plugin.version>3.12.0</maven.javadoc.plugin.version>
+        <maven.gpg.plugin.version>3.2.8</maven.gpg.plugin.version>
+        <central.publishing.plugin.version>0.9.0</central.publishing.plugin.version>
     </properties>
+
+    <!-- TODO: Central requires a real license declaration before publish. -->
+    <!-- Example: MIT License / https://www.opensource.org/licenses/mit-license.php -->
+
+    <developers>
+        <developer>
+            <name>Super1Windcloud</name>
+            <email>super1windcloud@users.noreply.github.com</email>
+            <organization>GitHub</organization>
+            <organizationUrl>https://github.com/Super1Windcloud</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/Super1Windcloud/kport.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/Super1Windcloud/kport.git</developerConnection>
+        <url>https://github.com/Super1Windcloud/kport/tree/main</url>
+        <tag>HEAD</tag>
+    </scm>
 
     <dependencies>
         <dependency>
@@ -35,21 +60,19 @@
         </dependency>
     </dependencies>
 
-    <distributionManagement>
-        <repository>
-            <id>${maven.release.repository.id}</id>
-            <url>${maven.release.repository.url}</url>
-        </repository>
-        <snapshotRepository>
-            <id>${maven.release.repository.id}</id>
-            <url>${maven.snapshot.repository.url}</url>
-        </snapshotRepository>
-    </distributionManagement>
-
-
-
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>${central.publishing.plugin.version}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>central</publishingServerId>
+                    <autoPublish>true</autoPublish>
+                    <waitUntil>published</waitUntil>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
@@ -73,6 +96,54 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>${maven.source.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${maven.javadoc.plugin.version}</version>
+                <configuration>
+                    <failOnError>false</failOnError>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>${maven.gpg.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                        <configuration>
+                            <bestPractices>true</bestPractices>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>com.diffplug.spotless</groupId>
